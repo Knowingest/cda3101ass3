@@ -6,12 +6,6 @@
 
 int logtwo(int x);
 
-struct reference
-{
-	int address;
-	char RorW;
-};
-
 int main(void)
 {
 	int i;
@@ -23,6 +17,8 @@ int main(void)
 	int index;
 	int tag;
 	int totalblocks;
+    int addresses[100];
+    char RorW[100];
 	//struct reference memref[100];
 	scanf("%d", &blocksize);
 	//printf("%d", blocksize);
@@ -32,11 +28,14 @@ int main(void)
 	//printf("%d", ass);
 
 
-	//for (i = 0; i < 100; i++)
+	for (i = 0; i < 100; i++)
 	{
-	//	if (scanf("%c %d",memref[i].RorW, memref[i].address) == 0) break;
+	   if (scanf("%c", &RorW[i]) == EOF) break;
+       scanf("%d", &addresses[i]);
 	}
-	//endindex = i;
+	endindex = i;
+
+    printf("ending index = %d\n", endindex);
 
 	offset = logtwo(blocksize);
 	index = logtwo(sets);
@@ -49,6 +48,12 @@ int main(void)
 	printf("Number of offset bits: %d\n", offset);
 	printf("Number of index bits: %d\n", index);
 	printf("Number of tag bits: %d\n", tag);
+
+    printf("Printing reference data...\n");
+    for (i = 0; i < endindex; i++)
+    {
+        printf("%c %d\n", RorW[i], addresses[i]);
+    }
 }
 
 int logtwo(int x)
