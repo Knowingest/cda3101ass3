@@ -14,6 +14,7 @@ struct cache_block
 {
     int tag;
     int lastused;
+    int written;
 };
 
 int logtwo(int x);  //cmath is for closers
@@ -112,6 +113,7 @@ int main(void)
     {
         cache[i].tag = -1;
         cache[i].lastused = -1;
+        cache[i].written = 0;
     }
     ///////////////////////////////////
     //write through no write allocate//
@@ -159,7 +161,7 @@ int main(void)
             {           //start at beginning of set, and end at end of set
                 //printf("READ MISS\n");
                 lru_index = reftable[cycle].index * ass;
-                for (i = reftable[cycle].index * ass; i < (reftable[cycle].index * ass) + ass - 1; i++)
+                for (i = reftable[cycle].index * ass; i < (reftable[cycle].index * ass) + ass; i++)
                     if (cache[i].lastused < lru)    //lru starts at 101 each cycle so this will always be true once
                         {
                             //printf("%d is less than %d\n", cache[i].lastused, lru);
@@ -201,7 +203,8 @@ int main(void)
     for (i = 0; i < totalblocks; i++)
     {
         cache[i].tag = -1;
-        cache[i].lastused = 0;
+        cache[i].lastused = -1;
+        cache[i].written = 0;
     }
 
     printf("****************************************\nWrite-through with No Write Allocate\n****************************************\n");
@@ -209,9 +212,109 @@ int main(void)
     printf("Hits: %d\n", hits);
     printf("Misses: %d\n", misses);
     printf("Memory References: %d\n", memrefs);
+    
     ///////////////////////////////////
     //write back with write allocate //
     ///////////////////////////////////
+
+    totalrefs = 0;
+    memrefs = 0;
+    hits = 0;
+    misses = 0;
+    incache = 0;
+    i = 0;
+    setoffset = 0;
+
+
+    for (cycle = 0; cycle < endindex; cycle++)
+    {
+        lru = 101;
+        incache = 0;            //find if block is in cache
+
+        //printf("cache[38].lastused = %d [39] = %d\n", cache[38].lastused, cache[39].lastused);
+
+        for (i = reftable[cycle].index * ass; i < (reftable[cycle].index * ass) + ass; i++)
+        {
+            //printf("checking cache[%d] for index %d tag %d\n", i, reftable[cycle].index, reftable[cycle].tag);
+            //reftable[cycle].index * ass == the raw array index inside the cache
+            if (cache[i].tag == reftable[cycle].tag)
+            {
+                incache = 1;    //set flag
+                break;
+            }
+        }
+
+        //if (!incache) printf("index: %d tag: %d not found in cache\n", reftable[cycle].index, reftable[cycle].tag);
+
+        if (reftable[cycle].RorW == 'R')        //READ
+        {
+            //printf("FOUND READ\n");
+            if (incache)
+            {
+                //printf("READ HIT\n");
+                hits++; 
+                cache[i].lastused = cycle;  //increment hit counter and update when block was last used
+                continue;
+            }
+            else
+            {           //start at beginning of set, and end at end of set
+                //printf("READ MISS\n");
+                lru_index = reftable[cycle].index * ass;
+                for (i = reftable[cycle].index * ass; i < (reftable[cycle].index * ass) + ass; i++)
+                    if (cache[i].lastused < lru)    //lru starts at 101 each cycle so this will always be true once
+                        {
+                            //printf("%d is less than %d\n", cache[i].lastused, lru);
+                            lru = cache[i].lastused;  //basically we're finding which element of the set was least recently used
+                            lru_index = i;
+                        }
+                if (cache[lru_index].written == 1) memrefs++;
+                cache[lru_index].tag = reftable[cycle].tag; //we found lru so replace it with new value
+                cache[lru_index].written = 0;
+                misses++;
+                memrefs++;      //update counters
+                cache[lru_index].lastused = cycle;
+                //printf("index: %d tag: %d put in cache\n", reftable[cycle].index, reftable[cycle].tag);
+                //printf("cache[%d].tag = %d\n", lru_index, cache[lru_index].tag);
+                continue;
+            }
+        }
+
+        else        //WRITE
+        {
+            if (incache)
+            {
+                hits++;
+                cache[i].lastused = cycle;
+                cache[i].written = 1;
+                continue;
+            }
+            else
+            {
+            	lru_index = reftable[cycle].index * ass;
+                for (i = reftable[cycle].index * ass; i < (reftable[cycle].index * ass) + ass - 1; i++)
+                    if (cache[i].lastused < lru)    //lru starts at 101 each cycle so this will always be true once
+                        {
+                            //printf("%d is less than %d\n", cache[i].lastused, lru);
+                            lru = cache[i].lastused;  //basically we're finding which element of the set was least recently used
+                            lru_index = i;
+                        }
+                if (cache[lru_index].written == 1) memrefs++;
+                cache[lru_index].tag = reftable[cycle].tag;
+                cache[lru_index].written = 1;
+                cache[lru_index].lastused = cycle;
+                misses++;
+                memrefs++;
+
+                continue;
+            }
+        }
+    }
+
+    printf("****************************************\nWrite Back with Write Allocate\n****************************************\n");
+    printf("Total number of references: %d\n", endindex);
+    printf("Hits: %d\n", hits);
+    printf("Misses: %d\n", misses);
+    printf("Memory References: %d\n", memrefs);
 }
 
 int logtwo(int x)
