@@ -5,8 +5,8 @@
 
 struct reference
 {
-    int index;
-    int tag;
+    unsigned int index;
+    unsigned int tag;
     char RorW;
 };
 
@@ -30,7 +30,7 @@ int main(void)
 	int index;
 	int tag;
 	int totalblocks;
-    int addresses[100];
+    unsigned int addresses[100];
     int totalrefs, hits, misses, memrefs;
     char RorW[200];
     struct cache_block* cache;
@@ -310,7 +310,7 @@ int main(void)
         }
     }
 
-    printf("****************************************\nWrite Back with Write Allocate\n****************************************\n");
+    printf("****************************************\nWrite-back with Write Allocate\n****************************************\n");
     printf("Total number of references: %d\n", endindex);
     printf("Hits: %d\n", hits);
     printf("Misses: %d\n", misses);
