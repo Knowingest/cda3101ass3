@@ -78,11 +78,11 @@ int main(void)
 	printf("Number of index bits: %d\n", index);
 	printf("Number of tag bits: %d\n", tag);
 
-    printf("Printing reference data...\n");
-    for (i = 0; i < endindex; i++)
+    //printf("Printing reference data...\n");
+    //for (i = 0; i < endindex; i++)
     {
         //printf("iteration %d\n", i);
-        printf("%c %d\n", RorW[i], addresses[i]);
+    //    printf("%c %d\n", RorW[i], addresses[i]);
     }
 
     /*printf("RorW data:\n");
@@ -98,13 +98,13 @@ int main(void)
         reftable[i].tag = addresses[i] >> (offset + index);
     }
 
-    printf("printing detailed reference data....\n");
-    for (i = 0; i < endindex; i++)
+    //printf("printing detailed reference data....\n");
+    //for (i = 0; i < endindex; i++)
     {
-        printf("Address: %d\n", addresses[i]);
-        printf("RorW: %c\n", reftable[i].RorW);
-        printf("index: %d\n", reftable[i].index);
-        printf("tag: %d\n", reftable[i].tag);
+    //    printf("Address: %d\n", addresses[i]);
+    //    printf("RorW: %c\n", reftable[i].RorW);
+    //    printf("index: %d\n", reftable[i].index);
+    //    printf("tag: %d\n", reftable[i].tag);
     }
 
 
@@ -152,7 +152,7 @@ int main(void)
             //printf("FOUND READ\n");
             if (incache)
             {
-                printf("READ HIT\n");
+                //printf("READ HIT\n");
                 hits++; 
                 cache[i].lastused = cycle;  //increment hit counter and update when block was last used
                 continue;
